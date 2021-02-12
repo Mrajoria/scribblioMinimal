@@ -48,6 +48,14 @@ import javax.swing.SwingUtilities;
 
 		});
 		
+		this.addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent e) {
+				listx.add(-1);
+				listy.add(-1);
+				
+			}
+		});
+		
 	
 	}
     
@@ -66,16 +74,14 @@ import javax.swing.SwingUtilities;
 	        System.out.print("POINTS "+(int)listx.get(x)+" "+(int)listy.get(x));
 	        System.out.println();
 	       
-
-	            if(x>=1) {
-	            	int temp = x;
-	            	temp--;
-	            	g.drawLine((int)listx.get(temp), (int)listy.get(temp), (int)listx.get(x),(int)listy.get(x));
+	    	int temp = x;
+        	temp--;
+        
+	            if(x>=1 && (int)listx.get(temp) != -1 && (int)listy.get(temp) !=-1 &&(int)listx.get(x)!=-1 && (int)listy.get(x) != -1) {
 	            	
-	            }
-	         
-	        
-	       }
+	            	g.drawLine((int)listx.get(temp), (int)listy.get(temp), (int)listx.get(x),(int)listy.get(x));
+	             }
+	         }
 	}
 	}
 	

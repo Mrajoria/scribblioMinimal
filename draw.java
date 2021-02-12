@@ -41,12 +41,6 @@ import javax.swing.SwingUtilities;
 			    System.out.print("LIST: "+x+" "+y);
 			    System.out.print(" ");
 			    
-			    try {
-					Thread.sleep(35);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			    
 				repaint();
 				
 				}
@@ -66,28 +60,22 @@ import javax.swing.SwingUtilities;
 		this.setBackground(Color.white);
 		if(this.scrbl.connect == true) {
 	    g.setColor(Color.red);
-	   
-	    for(int x=0;x<listx.size();x++) {
-	    	
-	    	int y = x++;
-	    	if(y<listx.size()-1) {
-	       
-		        g.fillOval((int)listx.get(x), (int)listy.get(x), 5, 5);
-
-	        	g.drawLine((int)listx.get(x), (int)listy.get(x), (int)listx.get(y), (int)listy.get(y));
-	        	System.err.print((int)listx.get(x)+" "+ (int)listy.get(x)+" "+ (int)listx.get(y)+" "+ (int)listy.get(y));
-				System.err.println();
-				
-			
-	        
 	 
-	        g.fillOval((int)listx.get(x), (int)listy.get(x), 5, 5);
+	       for(int x=0;x<listx.size();x++) {
+	        g.fillOval((int)listx.get(x), (int)listy.get(x), 1, 1);
 	        System.out.print("POINTS "+(int)listx.get(x)+" "+(int)listy.get(x));
 	        System.out.println();
-	    	
-        }
-	   
-		}
+	       
+
+	            if(x>=1) {
+	            	int temp = x;
+	            	temp--;
+	            	g.drawLine((int)listx.get(temp), (int)listy.get(temp), (int)listx.get(x),(int)listy.get(x));
+	            	
+	            }
+	         
+	        
+	       }
 	}
 	}
 	

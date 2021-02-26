@@ -44,7 +44,6 @@ public class Scribble_gui extends JFrame{
 	public String uName;
 	
 	public boolean connect = false;
-	DatagramSocket socket;
 	InetAddress ip;
 	
 	Scribble_gui(){
@@ -142,7 +141,7 @@ public class Scribble_gui extends JFrame{
 		    connect = OpenConnection(somename, ipaddrs,portnumber );
 			if(connect) {	
 			System.out.println("socket binding succesfull");
-			String message = new String(" User "+uName+" connected from "+ip+" @ port:"+portnum);
+			String message = "/c/"+somename+"/e/";
 			drawpanel.send(message);
 		   
 			remove();
@@ -169,6 +168,11 @@ public class Scribble_gui extends JFrame{
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		drawButton.setSize(57, 57);
+		drawButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				drawpanel.isAuthorizedToken = !drawpanel.isAuthorizedToken;
+			}
+		});
 		 try {
 			    Image img = ImageIO.read(getClass().getResource("resources/0.png"));
 			    drawButton.setIcon(new ImageIcon(img));
@@ -176,6 +180,7 @@ public class Scribble_gui extends JFrame{
 			    System.out.println(ex);
 			  }
 		 drawpanel.add(drawButton,gbc);
+		 
 	
 		
 		gbc = new GridBagConstraints();
@@ -209,7 +214,7 @@ public class Scribble_gui extends JFrame{
 		this.portnum = port;
 		
 		try {
-			socket = new DatagramSocket();
+			drawpanel.socket = new DatagramSocket();
 		    ip =   InetAddress.getByName(ipadrs);
 		} catch (SocketException e) {
 			e.printStackTrace();
@@ -229,7 +234,7 @@ public class Scribble_gui extends JFrame{
 			public void run() {
 			Scribble_gui gui =	new Scribble_gui();
 		
-			gui.drawpanel.repaint();
+			//gui.drawpanel.repaint();
 			}
 		});
 		

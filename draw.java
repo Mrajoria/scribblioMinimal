@@ -2,12 +2,13 @@ package scribblioMinimal;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.MouseInfo;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -17,12 +18,11 @@ import javax.swing.SwingUtilities;
 	Scribble_gui scrbl;
 	int x =-1;
 	int y =-1;
-	ArrayList listx= new ArrayList();
-	ArrayList listy = new ArrayList();
+	ArrayList<DrawCoordinates> list = new ArrayList<DrawCoordinates>();
 	int index =0;
-	boolean isclicked = false;
+	boolean isAuthorizedToken = false;
 	String xycordinates;
-	
+	DatagramSocket socket;
 	
     draw(Scribble_gui reference)
 	{
@@ -31,13 +31,14 @@ import javax.swing.SwingUtilities;
 		this.addMouseMotionListener(new MouseAdapter() {
 			public void mouseDragged(MouseEvent e) {
 				
-				if(scrbl.connect == true) {
+				if(scrbl.connect == true && isAuthorizedToken == true ) {
 					
 				x = e.getX();
 				y = e.getY();
 			
-              	listx.add((int)x);
-				listy.add((int)y);
+              	list.add(new DrawCoordinates(x,y));
+              	sendList(list);
+              	
 			    System.out.print("LIST: "+x+" "+y);
 			    System.out.print(" ");
 			    
@@ -50,9 +51,9 @@ import javax.swing.SwingUtilities;
 		
 		this.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
-				listx.add(-1);
-				listy.add(-1);
-				
+				if(isAuthorizedToken == true) {
+				list.add(new DrawCoordinates(-1,-1));
+				}
 			}
 		});
 		
@@ -69,17 +70,17 @@ import javax.swing.SwingUtilities;
 		if(this.scrbl.connect == true) {
 	    g.setColor(Color.red);
 	 
-	       for(int x=0;x<listx.size();x++) {
-	        g.fillOval((int)listx.get(x), (int)listy.get(x), 1, 1);
-	        System.out.print("POINTS "+(int)listx.get(x)+" "+(int)listy.get(x));
+	       for(int x=0;x<list.size();x++) {
+	        g.fillOval((int)list.get(x).getx(), (int)list.get(x).gety(), 1, 1);
+	        System.out.print("POINTS "+(int)list.get(x).getx()+" "+(int)list.get(x).gety());
 	        System.out.println();
 	       
 	    	int temp = x;
         	temp--;
         
-	            if(x>=1 && (int)listx.get(temp) != -1 && (int)listy.get(temp) !=-1 &&(int)listx.get(x)!=-1 && (int)listy.get(x) != -1) {
+	            if(x>=1 && (int)list.get(temp).getx() != -1 && (int)list.get(temp).gety() !=-1 &&(int)list.get(x).getx()!=-1 && (int)list.get(x).gety() != -1) {
 	            	
-	            	g.drawLine((int)listx.get(temp), (int)listy.get(temp), (int)listx.get(x),(int)listy.get(x));
+	            	g.drawLine((int)list.get(temp).getx(), (int)list.get(temp).gety(), (int)list.get(x).getx(),(int)list.get(x).gety());
 	             }
 	         }
 	}
@@ -87,16 +88,37 @@ import javax.swing.SwingUtilities;
 	
 	public void send(String message) {
 		
-		byte[] data = new byte[1024];
+		byte[] data = new byte[4096];
 		data = message.getBytes();
 		DatagramPacket packet = new DatagramPacket(data, data.length, this.scrbl.ip, this.scrbl.portnum);
 		try {
-			this.scrbl.socket.send(packet);
+			socket.send(packet);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+	public void sendList(ArrayList<DrawCoordinates> list) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    ObjectOutputStream outputStream;
+		try {
+			outputStream = new ObjectOutputStream(out);
+			outputStream.writeObject(list);
+		    byte[] data = new byte[100000];
+            data = out.toByteArray();
+		    DatagramPacket packet = new DatagramPacket(data, data.length, this.scrbl.ip, this.scrbl.portnum);
+		    socket.send(packet);
+		    outputStream.close(); 
+		}
+		 catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+		
+		
 	
 	private void recieve() {
 		

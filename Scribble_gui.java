@@ -15,6 +15,8 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -214,7 +216,15 @@ public class Scribble_gui extends JFrame{
 		this.add(drawpanel,gbc);
 		this.pack();
 		this.setVisible(true);
-	
+	    this.addWindowListener(new WindowAdapter() {
+	    	public void windowClosing(WindowEvent e) {
+	    		String disconnect = "/d/"+drawpanel.getID()+"/e/";
+	    		drawpanel.send(disconnect);
+	    		drawpanel.close();
+	    		drawpanel.recvRunning = false;
+	    		dispose();
+	    	}
+	    });
 	}
 	
 	public void remove() {

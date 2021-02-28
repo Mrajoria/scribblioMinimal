@@ -27,6 +27,7 @@ public class draw extends JPanel  {
 	
 	DatagramSocket socket;
     Thread clientRecieve;
+    boolean recvRunning = true;
 	
     draw(Scribble_gui reference)
 	{   
@@ -59,6 +60,7 @@ public class draw extends JPanel  {
 				}
 			}
 		});
+		
 	}
    
 
@@ -121,7 +123,7 @@ public class draw extends JPanel  {
 	 public void recieve() {
 	clientRecieve =  new Thread("Clientrecieve") {
 		 public void run() {
-			 while(true) {
+			 while(recvRunning) {
 				 byte[] data= new byte[100000];
 				 DatagramPacket packet = new DatagramPacket(data, data.length);
 				 try {
@@ -149,6 +151,10 @@ public class draw extends JPanel  {
 			 listObject.list = new ArrayList<DrawCoordinates>();
 			 repaint();
 		 }
+		 else if(incoming.startsWith("/i/server")) {
+			 String ping = "/ping/"+this.getID()+"/e/";
+			 send(ping);
+		 }
 		 	
 		 else {
 		
@@ -173,6 +179,13 @@ public class draw extends JPanel  {
 			 });	 
 		 }
 		 
+	 }
+	 public void close() {
+		 new Thread("socketClose") {
+			 public void run() {
+				 socket.close();
+			 }
+		 }.start();
 	 }
 	 public int getID() {
 		 return ID;

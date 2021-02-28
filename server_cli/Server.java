@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 import scribblioMinimal.DrawList;
@@ -20,7 +21,11 @@ public class Server implements Runnable {
 DatagramSocket socket;
 private int port;
 public boolean connect;
+public boolean running = false;
 private List<ServerClients> clients = new ArrayList<ServerClients>();
+private List<Integer> clientResponse = new ArrayList<Integer>();
+private final int MAX_ATTEMPTS =5;
+
 private int counter = 0;
 
 private Thread serverRun, recieve, manage;
@@ -38,6 +43,7 @@ Server(int port){
 }
 
 public void run() {
+	running = true;
 	manage();
 	recieve();
 	 boolean breakvar = true;
@@ -57,8 +63,40 @@ public void run() {
  
 }
    public void manage() {
-	   
-   }
+		manage = new Thread("manage") {
+			public void run() {
+				while(running) {
+					sendToAll("/i/server");
+
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						System.out.println("exception");
+					}
+				for(int i=0;i<clients.size();i++) {
+					ServerClients c = clients.get(i);
+					if(!clientResponse.contains(c.getID())){
+						if(c.attempt >=MAX_ATTEMPTS) {
+							disconnect(c.getID(), false);
+						}
+						else {
+							c.attempt++;
+						}
+					}
+					else {
+						Object o = c.getID();
+						clientResponse.remove(o);
+						c.attempt = 0;
+					}
+				}
+			}
+			}
+			
+	};
+	manage.start();
+	}
+   
 	
 	public void recieve() {
     recieve = new Thread("recieve") {
@@ -84,10 +122,11 @@ public void run() {
 		
 		if(data_recvd.startsWith("/c/")) {
 			String name = data_recvd.split("/c/|/e/")[1];
-			counter++;
+			Random r = new Random();
+			counter = r.nextInt(10000);
 			clients.add(new ServerClients(name,packet_recvd.getAddress(),packet_recvd.getPort(),counter));
-			System.out.println("client conncected, UserName "+clients.get(counter-1).Username+" from "+clients.get(counter-1).a+" at port "+clients.get(0).port);
-			System.out.println("client ID is "+clients.get(counter-1).getID());
+			System.out.println("client conncected, UserName "+clients.get(clients.size()-1).Username+" from "+clients.get(clients.size()-1).a+" at port "+clients.get(clients.size()-1).port);
+			System.out.println("client ID is "+clients.get(clients.size()-1).getID());
 			String ID = "/Sc/"+counter+"/e/";
 			send(ID, packet_recvd.getAddress(),packet_recvd.getPort());
 		}
@@ -96,9 +135,16 @@ public void run() {
 			sendToAll(message);
 		}
 		
+		else if(data_recvd.startsWith("/d/")) {
+			String ID = data_recvd.split("/d/|/e/")[1];
+			disconnect(Integer.parseInt(ID),true);
+		}
+		
+		else if(data_recvd.startsWith("/ping/")) {
+			clientResponse.add(Integer.parseInt(data_recvd.split("/ping/|/e/")[1]));
+ 
+		}
 		else { 
-			
-		 
 			try {
 		    ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(packet_recvd.getData()));
 		   
@@ -112,8 +158,7 @@ public void run() {
 		    }
 			sendToAllList(listObject);
 			listObject = null;
-		   
-			}
+		   }
 			     catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -123,9 +168,7 @@ public void run() {
 				}
 		    
 			}
-			 
-		
-	}
+		}
 	
 	public void send(String message, InetAddress a, int port) {
 		byte[]data = new byte[1024];
@@ -193,12 +236,36 @@ public void run() {
 		return true;
 	}
 	
+	public void disconnect(int ID, boolean status) {
+		ServerClients client = null;
+		boolean existed = false;
+		for (int x =0; x<clients.size();x++) {
+			if(clients.get(x).getID() == 	ID)
+			{
+			client = clients.get(x);
+			clients.remove(x);
+			existed = true;
+			break;
+			}
+		}
+		if(existed == false) return;
+		String message = "";
+		if(status == true) {
+			message = "client "+ "( "+client.getID()+" ) @ "+client.a.toString()+ ":" +client.port+" disconnected";
+		}
+		else {
+			message = "client "+ "( "+client.getID()+" ) @ "+client.a.toString()+ ":" +client.port+" timeout";
+		}
+		
+		System.out.println(message);
+		System.out.println("TOTAL CONNECTED CLIENTS "+clients.size());
+	}
+	
 	public static void main(String args[]) {
 		
 		Server s = new Server(Integer.parseInt(args[0]));
 		
 	}
-	
-	
+
 
 }

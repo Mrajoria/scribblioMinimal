@@ -22,6 +22,7 @@ import java.awt.GridBagConstraints;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
@@ -29,9 +30,9 @@ public class Scribble_gui extends JFrame{
 
 	private JPanel childpanel1, cp1, cp2, cp3;
 	draw drawpanel;
-	
 	private JButton drawButton;
 	private JButton sendButton;
+	private JButton clearButton;
 	private JLabel UserName;
 	private JTextField name;
 	private JLabel ipadrs;
@@ -52,6 +53,7 @@ public class Scribble_gui extends JFrame{
 		drawpanel = new draw(this);
 		drawButton = new JButton();
 		sendButton = new JButton();
+		clearButton = new JButton("Clear");
 		showGui();
 	}
 	
@@ -143,7 +145,7 @@ public class Scribble_gui extends JFrame{
 			System.out.println("socket binding succesfull");
 			String message = "/c/"+somename+"/e/";
 			drawpanel.send(message);
-		   
+		    drawpanel.recieve();
 			remove();
 			}
 			}
@@ -180,7 +182,20 @@ public class Scribble_gui extends JFrame{
 			    System.out.println(ex);
 			  }
 		 drawpanel.add(drawButton,gbc);
-		 
+		 gbc.anchor = GridBagConstraints.CENTER;
+		 gbc.gridx = 0;
+		 gbc.gridy = 1;
+		 gbc.weightx = 1;
+		 gbc.weighty = 0;
+		 clearButton.setSize(100, 100);
+		 clearButton.addMouseListener(new MouseAdapter() {
+			 public void mouseClicked(MouseEvent e) {
+				 String clearmessage = "/clr/";
+				 drawpanel.send(clearmessage);
+			 }
+		 });
+		 drawpanel.add(clearButton,gbc);
+		
 	
 		
 		gbc = new GridBagConstraints();
@@ -199,12 +214,12 @@ public class Scribble_gui extends JFrame{
 		this.add(drawpanel,gbc);
 		this.pack();
 		this.setVisible(true);
-		
-		
+	
 	}
 	
 	public void remove() {
 		this.remove(childpanel1);
+		this.setTitle(uName);
 		revalidate();
 	}
 	
@@ -228,8 +243,7 @@ public class Scribble_gui extends JFrame{
 		return true;
 	}
 	
-
-	public static void main(String args[]) {
+	 public static void main(String args[]) {
 		SwingUtilities.invokeLater(new Thread() {
 			public void run() {
 			Scribble_gui gui =	new Scribble_gui();

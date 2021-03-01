@@ -67,7 +67,7 @@ public void run() {
 			public void run() {
 				while(running) {
 					sendToAll("/i/server");
-
+                    sendStatus();
 					try {
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
@@ -169,7 +169,17 @@ public void run() {
 		    
 			}
 		}
-	
+	public void sendStatus() {
+		if (clients.size() <= 0) return;
+		String users = "/u/";
+		for (int i = 0; i < clients.size() - 1; i++) {
+			users += clients.get(i).Username + "/n/";
+		}
+		users += clients.get(clients.size() - 1).Username + "/e/";
+		System.out.println(users);
+		sendToAll(users);
+		
+	}
 	public void send(String message, InetAddress a, int port) {
 		byte[]data = new byte[1024];
 		data = message.getBytes();
@@ -205,7 +215,7 @@ public void run() {
 	      else {
 	    	  System.out.println("sending to clients "+clients.get(i).Username);
 	    	  try {
-	    		  listObject.setID(clients.get(i).getID());
+	    		   listObject.setID(clients.get(i).getID());
 					byte[] data = new byte[100000];
 					ByteArrayOutputStream bos = new ByteArrayOutputStream();
 					ObjectOutputStream OBJos = new ObjectOutputStream(bos);

@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -72,7 +73,7 @@ public class draw extends JPanel  {
 	 
 	       for(int x=0;x<listObject.list.size();x++) {
 	        g.fillOval((int)listObject.list.get(x).x, (int)listObject.list.get(x).y, 1, 1);
-	        System.out.print("POINTS "+(int)listObject.list.get(x).x+" "+(int)listObject.list.get(x).y);
+	   //     System.out.print("POINTS "+(int)listObject.list.get(x).x+" "+(int)listObject.list.get(x).y);
 	        System.out.println();
 	       
 	    	int temp = x;
@@ -155,6 +156,18 @@ public class draw extends JPanel  {
 			 String ping = "/ping/"+this.getID()+"/e/";
 			 send(ping);
 		 }
+		 
+		 else if(incoming.startsWith("/u/")){
+			 String[] u = incoming.split("/u/|/n/|/e/");
+			 this.scrbl.OnUsrs.showOnline(Arrays.copyOfRange(u, 1, u.length-1));
+			 System.out.println("Total Clients Online "+u.length);
+			 SwingUtilities.invokeLater(new Thread() {
+				 public void run() {
+					 repaint();
+				 }
+			 });
+			 
+		 }
 		 	
 		 else {
 		
@@ -174,7 +187,7 @@ public class draw extends JPanel  {
 				 public void run() {
 					 System.out.println("ID for this listObject is "+listObject.getID());
 					 System.err.print("ID for this ListObject SHOULD BE "+getID());
-					repaint();
+					 repaint();
 				 }
 			 });	 
 		 }

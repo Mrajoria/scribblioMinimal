@@ -32,6 +32,7 @@ public class Scribble_gui extends JFrame{
 
 	private JPanel childpanel1, cp1, cp2, cp3;
 	draw drawpanel;
+	OnlineUsers OnUsrs;
 	private JButton drawButton;
 	private JButton sendButton;
 	private JButton clearButton;
@@ -51,6 +52,7 @@ public class Scribble_gui extends JFrame{
 	
 	Scribble_gui(){
 		this.setLayout(new GridBagLayout());
+	    OnUsrs = new OnlineUsers();
 		childpanel1 = new JPanel();
 		drawpanel = new draw(this);
 		drawButton = new JButton();
@@ -160,18 +162,17 @@ public class Scribble_gui extends JFrame{
 		childpanel1.add(sendButton,gbc);
 	
 	
-		drawpanel.setBackground(Color.white);
-		drawpanel.setLayout(new GridBagLayout());
-		Dimension cp2 = new Dimension(500,400);
-		drawpanel.setPreferredSize(cp2);
-		drawpanel.setBorder(BorderFactory.createLineBorder(Color.red));
+		
+		OnUsrs.setLayout(new GridBagLayout());
+		OnUsrs.setPreferredSize(new Dimension(498,67));
+		
 		gbc = new GridBagConstraints();
-		gbc.anchor = GridBagConstraints.NORTHWEST;
-    	gbc.gridx = 0;
+		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.weightx = 1;
-		gbc.weighty = 1;
-		drawButton.setSize(57, 57);
+		gbc.anchor = GridBagConstraints.NORTHWEST;
+		
+		drawButton.setPreferredSize(new Dimension(65, 65));
 		drawButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				drawpanel.isAuthorizedToken = !drawpanel.isAuthorizedToken;
@@ -183,7 +184,25 @@ public class Scribble_gui extends JFrame{
 			  } catch (Exception ex) {
 			    System.out.println(ex);
 			  }
-		 drawpanel.add(drawButton,gbc);
+		 OnUsrs.add(drawButton,gbc);
+		 
+		 
+		 
+		 
+		 drawpanel.setBackground(Color.white);
+		 drawpanel.setLayout(new GridBagLayout());
+		 Dimension cp2 = new Dimension(500,400);
+		 drawpanel.setPreferredSize(cp2);
+		 drawpanel.setBorder(BorderFactory.createLineBorder(Color.red));
+		 gbc = new GridBagConstraints();
+		 gbc.anchor = GridBagConstraints.NORTHWEST;
+	     gbc.gridx = 0;
+		 gbc.gridy = 0;
+		 gbc.weightx = 1;
+		 gbc.weighty = 1;
+		 gbc.fill = GridBagConstraints.HORIZONTAL;
+		 drawpanel.add(OnUsrs,gbc);
+		 gbc = new GridBagConstraints();
 		 gbc.anchor = GridBagConstraints.CENTER;
 		 gbc.gridx = 0;
 		 gbc.gridy = 1;
@@ -197,9 +216,7 @@ public class Scribble_gui extends JFrame{
 			 }
 		 });
 		 drawpanel.add(clearButton,gbc);
-		
-	
-		
+			 
 		gbc = new GridBagConstraints();
 		gbc.anchor = GridBagConstraints.NORTHWEST;
 		gbc.gridx =0;
@@ -208,12 +225,12 @@ public class Scribble_gui extends JFrame{
 		gbc.weighty = 1;
 		this.add(childpanel1,gbc);
 		
-		
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		gbc.weightx =1;
 		gbc.fill = GridBagConstraints.BOTH;
 		this.add(drawpanel,gbc);
+		
 		this.pack();
 		this.setVisible(true);
 	    this.addWindowListener(new WindowAdapter() {
